@@ -571,7 +571,7 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
     printer->Print(variables_,
       "const NSUInteger $list_name$Count = self.$list_name$.count;\n"
       "if ($list_name$Count > 0) {\n"
-      "  const $storage_type$ *values = (const $storage_type$ *)self.$list_name$.data;\n");
+      "  const $storage_type$ __autoreleasing *values = (const $storage_type$ __autoreleasing *)self.$list_name$.data;\n");
     printer->Indent();
 
     if (descriptor_->options().packed()) {
@@ -603,7 +603,7 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
 
     if (FixedSize(descriptor_->type()) == -1) {
       printer->Print(variables_,
-        "const $storage_type$ *values = (const $storage_type$ *)self.$list_name$.data;\n"
+        "const $storage_type$ __autoreleasing *values = (const $storage_type$ __autoreleasing *)self.$list_name$.data;\n"
         "for (NSUInteger i = 0; i < count; ++i) {\n"
         "  dataSize += compute$capitalized_type$SizeNoTag(values[i]);\n"
         "}\n");
