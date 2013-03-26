@@ -945,7 +945,6 @@
 				PRODUCT_NAME = ProtocolBuffers;
 				SDKROOT = "";
 				VALID_ARCHS = "i386 x86_64";
-				"VALID_ARCHS[sdk=iphoneos*]" = "armv6 armv7";
 			};
 			name = Debug;
 		};
@@ -964,7 +963,6 @@
 				PRODUCT_NAME = ProtocolBuffers;
 				SDKROOT = "";
 				VALID_ARCHS = "i386 x86_64";
-				"VALID_ARCHS[sdk=iphoneos*]" = "armv6 armv7";
 			};
 			name = Release;
 		};
@@ -1007,7 +1005,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
@@ -1032,7 +1030,7 @@
 				PRODUCT_NAME = "UnitTests copy";
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
-				VALID_ARCHS = "i386 x86_64";
+				VALID_ARCHS = "armv7s armv7";
 				WRAPPER_EXTENSION = octest;
 			};
 			name = Debug;
@@ -1041,7 +1039,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1065,7 +1063,7 @@
 				PRODUCT_NAME = "UnitTests copy";
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
-				VALID_ARCHS = "i386 x86_64";
+				VALID_ARCHS = "armv7s armv7";
 				WRAPPER_EXTENSION = octest;
 				ZERO_LINK = NO;
 			};
