@@ -684,18 +684,18 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
         "dataSize = $fixed_size$ * count;\n");
     }
 
-    printer->Print("size += dataSize;\n");
+    printer->Print("size_ += dataSize;\n");
 
     if (descriptor_->options().packed()) {
       printer->Print(variables_,
         "if (count > 0) {\n"
-        "  size += $tag_size$;\n"
-        "  size += computeInt32SizeNoTag(dataSize);\n"
+        "  size_ += $tag_size$;\n"
+        "  size_ += computeInt32SizeNoTag(dataSize);\n"
         "}\n"
         "$name$MemoizedSerializedSize = dataSize;\n");
     } else {
       printer->Print(variables_,
-        "size += $tag_size$ * count;\n");
+        "size_ += $tag_size$ * count;\n");
     }
 
     printer->Outdent();
