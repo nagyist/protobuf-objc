@@ -20,8 +20,7 @@
 #import "Message.h"
 #import "Utilities.h"
 #import "WireFormat.h"
-
-#import "UnknownFieldSet_Builder.m" // FIXME: .m import!!
+#import "UnknownFieldSet.h"
 
 
 @implementation PBCodedOutputStream
@@ -60,7 +59,7 @@ const int32_t DEFAULT_BUFFER_SIZE = 4 * 1024;
 		// We're writing to a single buffer.
 		@throw [NSException exceptionWithName:@"OutOfSpace" reason:@"" userInfo:nil];
 	}
-	
+
 	[buffer flushToOutputStream:output];
 }
 

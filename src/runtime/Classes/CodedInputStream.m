@@ -20,8 +20,7 @@
 #import "Message_Builder.h"
 #import "Utilities.h"
 #import "WireFormat.h"
-
-#import "UnknownFieldSet_Builder.m" // FIXME: .m import!!
+#import "UnknownFieldSet_Builder.h"
 
 @interface PBCodedInputStream ()
 @property (strong) NSMutableData* buffer;
