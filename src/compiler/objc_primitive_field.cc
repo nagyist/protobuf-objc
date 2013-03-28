@@ -480,13 +480,23 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
   }
 
   void RepeatedPrimitiveFieldGenerator::GenerateBuilderMembersHeader(io::Printer* printer) const {
-    printer->Print(variables_,
-      "- (PBAppendableArray *)$name$;\n"
-      "- ($storage_type$)$name$AtIndex:(NSUInteger)index;\n"
-      "- ($classname$_Builder *)add$capitalized_name$:($storage_type$)value;\n"
-      "- ($classname$_Builder *)set$capitalized_name$Array:(NSArray *)array;\n"
-      "- ($classname$_Builder *)set$capitalized_name$Values:(const $storage_type$ *)values count:(NSUInteger)count;\n"
-      "- ($classname$_Builder *)clear$capitalized_name$;\n");
+    if(isObjectArray(descriptor_)) {
+      printer->Print(variables_,
+        "- (PBAppendableArray *)$name$;\n"
+        "- ($storage_type$)$name$AtIndex:(NSUInteger)index;\n"
+        "- ($classname$_Builder *)add$capitalized_name$:($storage_type$)value;\n"
+        "- ($classname$_Builder *)set$capitalized_name$Array:(NSArray *)array;\n"
+        "- ($classname$_Builder *)clear$capitalized_name$;\n");
+    }
+    else {
+      printer->Print(variables_,
+        "- (PBAppendableArray *)$name$;\n"
+        "- ($storage_type$)$name$AtIndex:(NSUInteger)index;\n"
+        "- ($classname$_Builder *)add$capitalized_name$:($storage_type$)value;\n"
+        "- ($classname$_Builder *)set$capitalized_name$Array:(NSArray *)array;\n"
+        "- ($classname$_Builder *)set$capitalized_name$Values:(const $storage_type$ *)values count:(NSUInteger)count;\n"
+        "- ($classname$_Builder *)clear$capitalized_name$;\n");
+    }
   }
 
 
