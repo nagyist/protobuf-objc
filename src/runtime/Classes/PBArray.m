@@ -94,7 +94,7 @@ static PBArrayValueTypeInfo PBValueTypes[] =
 
 #define PBArrayValueRangeAssert(index) \
 	if (__builtin_expect(index >= _count, 0)) \
-		[NSException raise:NSRangeException format: @"index (%lu) beyond bounds (%lu)", index, _count];
+		[NSException raise:NSRangeException format: @"index (%lu) beyond bounds (%lu)", index, (unsigned long)_count];
 
 #define PBArrayNumberAssert(value) \
 	if (__builtin_expect(![value isKindOfClass:[NSNumber class]], 0)) \
@@ -171,49 +171,49 @@ static PBArrayValueTypeInfo PBValueTypes[] =
 
 - (BOOL)boolAtIndex:(NSUInteger)index
 {
-	PBArrayValueRangeAssert(index);
+	PBArrayValueRangeAssert((unsigned long)index);
 	PBArrayValueTypeAssert(PBArrayValueTypeBool);
 	return ((BOOL *)_data)[index];
 }
 
 - (int32_t)int32AtIndex:(NSUInteger)index
 {
-	PBArrayValueRangeAssert(index);
+	PBArrayValueRangeAssert((unsigned long)index);
 	PBArrayValueTypeAssert(PBArrayValueTypeInt32);
 	return ((int32_t *)_data)[index];
 }
 
 - (uint32_t)uint32AtIndex:(NSUInteger)index
 {
-	PBArrayValueRangeAssert(index);
+	PBArrayValueRangeAssert((unsigned long)index);
 	PBArrayValueTypeAssert(PBArrayValueTypeUInt32);
 	return ((uint32_t *)_data)[index];
 }
 
 - (int64_t)int64AtIndex:(NSUInteger)index
 {
-	PBArrayValueRangeAssert(index);
+	PBArrayValueRangeAssert((unsigned long)index);
 	PBArrayValueTypeAssert(PBArrayValueTypeInt64);
 	return ((int64_t *)_data)[index];
 }
 
 - (uint64_t)uint64AtIndex:(NSUInteger)index
 {
-	PBArrayValueRangeAssert(index);
+	PBArrayValueRangeAssert((unsigned long)index);
 	PBArrayValueTypeAssert(PBArrayValueTypeUInt64);
 	return ((uint64_t *)_data)[index];
 }
 
 - (Float32)floatAtIndex:(NSUInteger)index
 {
-	PBArrayValueRangeAssert(index);
+	PBArrayValueRangeAssert((unsigned long)index);
 	PBArrayValueTypeAssert(PBArrayValueTypeFloat);
 	return ((Float32 *)_data)[index];
 }
 
 - (Float64)doubleAtIndex:(NSUInteger)index
 {
-	PBArrayValueRangeAssert(index);
+	PBArrayValueRangeAssert((unsigned long)index);
 	PBArrayValueTypeAssert(PBArrayValueTypeDouble);
 	return ((Float64 *)_data)[index];
 }
