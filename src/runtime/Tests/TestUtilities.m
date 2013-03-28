@@ -27,7 +27,7 @@
 
 
 + (NSData*) goldenData {
-  NSString* path = [[NSBundle mainBundle] pathForResource:@"golden_message" ofType:nil];
+  NSString* path = [[NSBundle bundleForClass:[self class]] pathForResource:@"golden_message" ofType:nil];
   if (path == nil) {
     path = @"golden_message";
   }
@@ -37,7 +37,7 @@
 
 
 + (NSData*) goldenPackedFieldsData {
-  NSString* path = [[NSBundle mainBundle] pathForResource:@"golden_packed_fields_message" ofType:nil];
+  NSString* path = [[NSBundle bundleForClass:[self class]] pathForResource:@"golden_packed_fields_message" ofType:nil];
   if (path == nil) {
     path = @"golden_packed_fields_message";
   }
