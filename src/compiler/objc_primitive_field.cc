@@ -433,7 +433,12 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
 
 
   void RepeatedPrimitiveFieldGenerator::GenerateFieldHeader(io::Printer* printer) const {
-    printer->Print(variables_, "PBAppendableArray * $list_name$;\n");
+    if(isObjectArray(descriptor_)){
+      printer->Print(variables_, "NSMutableArray * $list_name$;\n");
+    }
+    else {
+      printer->Print(variables_, "PBAppendableArray * $list_name$;\n");
+    }
     if (descriptor_->options().packed()) {
       printer->Print(variables_,
         "int32_t $name$MemoizedSerializedSize;\n");
@@ -451,7 +456,12 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
 
 
   void RepeatedPrimitiveFieldGenerator::GenerateExtensionSource(io::Printer* printer) const {
-    printer->Print(variables_, "@property (strong) PBAppendableArray * $list_name$;\n");
+    if(isObjectArray(descriptor_)){
+      printer->Print(variables_, "@property (strong) NSMutableArray * $list_name$;\n");
+    }
+    else {
+      printer->Print(variables_, "@property (strong) PBAppendableArray * $list_name$;\n");
+    }
   }
 
 
@@ -640,48 +650,61 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
 
 
   void RepeatedPrimitiveFieldGenerator::GenerateSerializationCodeSource(io::Printer* printer) const {
-    printer->Print(variables_,
-      "const NSUInteger $list_name$Count = self.$list_name$.count;\n"
-      "if ($list_name$Count > 0) {\n"
-      "  const $storage_type$ __autoreleasing *values = (const $storage_type$ __autoreleasing *)self.$list_name$.data;\n");
-    printer->Indent();
-
-    if (descriptor_->options().packed()) {
+    if(isObjectArray(descriptor_)){
       printer->Print(variables_,
-        "[output writeRawVarint32:$tag$];\n"
-        "[output writeRawVarint32:$name$MemoizedSerializedSize];\n"
-        "for (NSUInteger i = 0; i < $list_name$Count; ++i) {\n"
-        "  [output write$capitalized_type$NoTag:values[i]];\n"
-        "}\n");
-    } else {
-      printer->Print(variables_,
-        "for (NSUInteger i = 0; i < $list_name$Count; ++i) {\n"
-        "  [output write$capitalized_type$:$number$ value:values[i]];\n"
-        "}\n");
+      "for ($type$ *element in self.$list_name$) {\n"
+      "  [output write$capitalized_type$:$number$ value:element];\n"
+      "}\n");
     }
+    else {
+      printer->Print(variables_,
+        "const NSUInteger $list_name$Count = self.$list_name$.count;\n"
+        "if ($list_name$Count > 0) {\n"
+        "  const $storage_type$ __autoreleasing *values = (const $storage_type$ __autoreleasing *)self.$list_name$.data;\n");
+      printer->Indent();
 
-    printer->Outdent();
-    printer->Print("}\n");
+      if (descriptor_->options().packed()) {
+        printer->Print(variables_,
+          "[output writeRawVarint32:$tag$];\n"
+          "[output writeRawVarint32:$name$MemoizedSerializedSize];\n"
+          "for (NSUInteger i = 0; i < $list_name$Count; ++i) {\n"
+          "  [output write$capitalized_type$NoTag:values[i]];\n"
+          "}\n");
+      } else {
+        printer->Print(variables_,
+          "for (NSUInteger i = 0; i < $list_name$Count; ++i) {\n"
+          "  [output write$capitalized_type$:$number$ value:values[i]];\n"
+          "}\n");
+      }
+      printer->Outdent();
+      printer->Print("}\n");
+    }
   }
 
 
   void RepeatedPrimitiveFieldGenerator::GenerateSerializedSizeCodeSource(io::Printer* printer) const {
     printer->Print("{\n");
     printer->Indent();
-
     printer->Print(variables_,
       "int32_t dataSize = 0;\n"
       "const NSUInteger count = self.$list_name$.count;\n");
-
-    if (FixedSize(descriptor_->type()) == -1) {
+    if(isObjectArray(descriptor_)) {
       printer->Print(variables_,
-        "const $storage_type$ __autoreleasing *values = (const $storage_type$ __autoreleasing *)self.$list_name$.data;\n"
-        "for (NSUInteger i = 0; i < count; ++i) {\n"
-        "  dataSize += compute$capitalized_type$SizeNoTag(values[i]);\n"
-        "}\n");
-    } else {
-      printer->Print(variables_,
-        "dataSize = $fixed_size$ * count;\n");
+      "for ($type$ *element in self.$list_name$) {\n"
+      "  dataSize += compute$capitalized_type$SizeNoTag(element);\n"
+      "}\n");
+    }
+    else {
+      if (FixedSize(descriptor_->type()) == -1) {
+        printer->Print(variables_,
+          "const $storage_type$ __autoreleasing *values = (const $storage_type$ __autoreleasing *)self.$list_name$.data;\n"
+          "for (NSUInteger i = 0; i < count; ++i) {\n"
+          "  dataSize += compute$capitalized_type$SizeNoTag(values[i]);\n"
+          "}\n");
+      } else {
+        printer->Print(variables_,
+          "dataSize = $fixed_size$ * count;\n");
+      }
     }
 
     printer->Print("size_ += dataSize;\n");
