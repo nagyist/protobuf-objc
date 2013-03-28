@@ -463,9 +463,16 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
 
   void RepeatedEnumFieldGenerator::GenerateDescriptionCodeSource(io::Printer* printer) const {
     printer->Print(variables_,
-      "for (NSNumber* element in self.$list_name$) {\n"
-      "  [output appendFormat:@\"%@%@: %d\\n\", indent, @\"$name$\", element.intValue];\n"
+      "const NSUInteger $list_name$Count = self.$list_name$.count;\n"
+      "if ($list_name$Count > 0) {\n"
+      "  const $type$ *$list_name$Values = (const $type$ *)self.$list_name$.data;\n");
+    printer->Indent();
+    printer->Print(variables_,
+      "for (NSUInteger i = 0; i < $list_name$Count; ++i) {\n"
+      "  [output appendFormat:@\"%@%@: %d\\n\", indent, @\"$name$\", $list_name$Values[i]];\n"
       "}\n");
+    printer->Outdent();
+    printer->Print("}\n");
   }
 
 
@@ -476,9 +483,16 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
 
   void RepeatedEnumFieldGenerator::GenerateHashCodeSource(io::Printer* printer) const {
     printer->Print(variables_,
-      "for (NSNumber* element in self.$list_name$) {\n"
-      "  hashCode = hashCode * 31 + element.intValue;\n"
+      "const NSUInteger $list_name$Count = self.$list_name$.count;\n"
+      "if ($list_name$Count > 0) {\n"
+      "  const $type$ *$list_name$Values = (const $type$ *)self.$list_name$.data;\n");
+    printer->Indent();
+    printer->Print(variables_,
+      "for (NSUInteger i = 0; i < $list_name$Count; ++i) {\n"
+      "  hashCode = hashCode * 31 + $list_name$Values[i];\n"
       "}\n");
+    printer->Outdent();
+    printer->Print("}\n");
   }
 }  // namespace objectivec
 }  // namespace compiler
