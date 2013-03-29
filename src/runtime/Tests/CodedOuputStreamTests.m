@@ -280,6 +280,7 @@
 
   NSData* rawBytes = message.data;
   NSData* goldenData = [TestUtilities goldenData];
+  NSAssert(goldenData != nil, @"Golden data must be present");
   STAssertEqualObjects(rawBytes, goldenData, @"");
 
   // Try different block sizes.
