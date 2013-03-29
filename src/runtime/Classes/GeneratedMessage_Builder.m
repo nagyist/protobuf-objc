@@ -17,7 +17,7 @@
 
 #import "GeneratedMessage_Builder.h"
 
-#import "GeneratedMessage.h"
+#import "PBGeneratedMessage.h"
 #import "Message.h"
 #import "Message_Builder.h"
 #import "UnknownFieldSet.h"

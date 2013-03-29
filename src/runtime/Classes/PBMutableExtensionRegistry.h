@@ -15,27 +15,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "GeneratedMessage.h"
+#import "PBExtensionRegistry.h"
 
-#import "UnknownFieldSet.h"
-
-@interface PBGeneratedMessage ()
-@property (strong) PBUnknownFieldSet* unknownFields;
-@end
-
-
-@implementation PBGeneratedMessage
-
-@synthesize unknownFields;
-
-
-- (id) init {
-  if ((self = [super init])) {
-    self.unknownFields = [PBUnknownFieldSet defaultInstance];
-    memoizedSerializedSize = -1;
-  }
-
-  return self;
+@interface PBMutableExtensionRegistry : PBExtensionRegistry {
+@private
+  NSMutableDictionary* mutableClassMap;
 }
+
++ (PBMutableExtensionRegistry*) registry;
+
+- (void) addExtension:(id<PBExtensionField>) extension;
 
 @end

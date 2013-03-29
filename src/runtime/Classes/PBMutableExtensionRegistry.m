@@ -15,7 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "MutableExtensionRegistry.h"
+#import "PBMutableExtensionRegistry.h"
 
 #import "ExtensionField.h"
 
