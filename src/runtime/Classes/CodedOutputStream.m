@@ -20,6 +20,7 @@
 #import "Message.h"
 #import "Utilities.h"
 #import "WireFormat.h"
+#import "UnknownFieldSet.h"
 
 
 @implementation PBCodedOutputStream
@@ -29,23 +30,17 @@ const int32_t DEFAULT_BUFFER_SIZE = 4 * 1024;
 
 - (id)initWithOutputStream:(NSOutputStream*)_output data:(NSMutableData*)data {
 	if ( (self = [super init]) ) {
-		output = [_output retain];
+		output = _output ;
 		buffer = [[RingBuffer alloc] initWithData:data];
 	}
 	return self;
 }
 
 
-- (void)dealloc {
-	[output release];
-	[buffer release];
-	[super dealloc];
-}
-
 
 + (PBCodedOutputStream*)streamWithOutputStream:(NSOutputStream*)output bufferSize:(int32_t)bufferSize {
 	NSMutableData *data = [NSMutableData dataWithLength:bufferSize];
-	return [[[PBCodedOutputStream alloc] initWithOutputStream:output data:data] autorelease];
+	return [[PBCodedOutputStream alloc] initWithOutputStream:output data:data] ;
 }
 
 
@@ -55,7 +50,7 @@ const int32_t DEFAULT_BUFFER_SIZE = 4 * 1024;
 
 
 + (PBCodedOutputStream*)streamWithData:(NSMutableData*)data {
-	return [[[PBCodedOutputStream alloc] initWithOutputStream:nil data:data] autorelease];
+	return [[PBCodedOutputStream alloc] initWithOutputStream:nil data:data] ;
 }
 
 
@@ -64,7 +59,7 @@ const int32_t DEFAULT_BUFFER_SIZE = 4 * 1024;
 		// We're writing to a single buffer.
 		@throw [NSException exceptionWithName:@"OutOfSpace" reason:@"" userInfo:nil];
 	}
-	
+
 	[buffer flushToOutputStream:output];
 }
 

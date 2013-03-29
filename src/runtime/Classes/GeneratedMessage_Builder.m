@@ -17,7 +17,7 @@
 
 #import "GeneratedMessage_Builder.h"
 
-#import "GeneratedMessage.h"
+#import "PBGeneratedMessage.h"
 #import "Message.h"
 #import "Message_Builder.h"
 #import "UnknownFieldSet.h"
@@ -25,7 +25,7 @@
 
 
 @interface PBGeneratedMessage ()
-@property (retain) PBUnknownFieldSet* unknownFields;
+@property (strong) PBUnknownFieldSet* unknownFields;
 @end
 
 

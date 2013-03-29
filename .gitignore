@@ -26,7 +26,7 @@ src/compiler/protoc-gen-objc
 # Mac stuff
 .DS_Store
 
-# Xcode stuff
+# Xcode & Appcode stuff
 Build/
 *.pbxuser
 *.perspective
@@ -35,3 +35,4 @@ Build/
 *.mode2v3
 project.xcworkspace
 xcuserdata
+.idea
