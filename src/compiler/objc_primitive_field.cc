@@ -482,7 +482,7 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
   void RepeatedPrimitiveFieldGenerator::GenerateBuilderMembersHeader(io::Printer* printer) const {
     if(isObjectArray(descriptor_)) {
       printer->Print(variables_,
-        "- (PBAppendableArray *)$name$;\n"
+        "- (NSMutableArray *)$name$;\n"
         "- ($storage_type$)$name$AtIndex:(NSUInteger)index;\n"
         "- ($classname$_Builder *)add$capitalized_name$:($storage_type$)value;\n"
         "- ($classname$_Builder *)set$capitalized_name$Array:(NSArray *)array;\n"
