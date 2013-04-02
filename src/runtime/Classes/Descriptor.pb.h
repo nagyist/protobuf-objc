@@ -243,7 +243,7 @@ BOOL PBFieldOptions_CTypeIsValidValue(PBFieldOptions_CType value);
 - (PBFileDescriptorProto_Builder*) setPackage:(NSString*) value;
 - (PBFileDescriptorProto_Builder*) clearPackage;
 
-- (PBAppendableArray *)dependency;
+- (NSMutableArray *)dependency;
 - (NSString*)dependencyAtIndex:(NSUInteger)index;
 - (PBFileDescriptorProto_Builder *)addDependency:(NSString*)value;
 - (PBFileDescriptorProto_Builder *)setDependencyArray:(NSArray *)array;
