@@ -256,24 +256,24 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
 
   void RepeatedEnumFieldGenerator::GeneratePropertyHeader(io::Printer* printer) const {
 		//check if object array vs primitive array
-	//	if(isObjectArray(descriptor_)){
-	//		printer->Print(variables_, "@property (readonly, strong) NSArray * $name$;\n");
-	//	}else{
+		if(isObjectArray(descriptor_)){
+			printer->Print(variables_, "@property (readonly, strong) NSArray * $name$;\n");
+		}else{
 			printer->Print(variables_, "@property (readonly, strong) PBArray * $name$;\n");
-	//	}
+		}
     
   }
 
 
   void RepeatedEnumFieldGenerator::GenerateExtensionSource(io::Printer* printer) const {
 		//check if object array vs primitive array
-	//	if(isObjectArray(descriptor_)){
-//			printer->Print(variables_,
-	//	      "@property (strong) NSMutableArray * $list_name$;\n");
-	//	}else{
+		if(isObjectArray(descriptor_)){
+			printer->Print(variables_,
+		      "@property (strong) NSMutableArray * $list_name$;\n");
+		}else{
 			printer->Print(variables_,
 		      "@property (strong) PBAppendableArray * $list_name$;\n");
-	//	}
+		}
   }
 
   void RepeatedEnumFieldGenerator::GenerateSynthesizeSource(io::Printer* printer) const {

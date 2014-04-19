@@ -75,12 +75,11 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
         case FieldDescriptor::TYPE_FLOAT   : return "float" ;
         case FieldDescriptor::TYPE_DOUBLE  : return "double";
         case FieldDescriptor::TYPE_BOOL    : return "bool"  ;
-  /*      case FieldDescriptor::TYPE_STRING  : return "object";
+        case FieldDescriptor::TYPE_STRING  : return "object";
         case FieldDescriptor::TYPE_BYTES   : return "object";
         case FieldDescriptor::TYPE_ENUM    : return "object";
         case FieldDescriptor::TYPE_GROUP   : return "object";
         case FieldDescriptor::TYPE_MESSAGE : return "object";
-*/    
   }
 
       GOOGLE_LOG(FATAL) << "Can't get here.";
@@ -102,13 +101,11 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
         case FieldDescriptor::TYPE_FLOAT   : return "Float" ;
         case FieldDescriptor::TYPE_DOUBLE  : return "Double";
         case FieldDescriptor::TYPE_BOOL    : return "Bool"  ;
-/*
         case FieldDescriptor::TYPE_STRING  : return "Object";
         case FieldDescriptor::TYPE_BYTES   : return "Object";
         case FieldDescriptor::TYPE_ENUM    : return "Object";
         case FieldDescriptor::TYPE_GROUP   : return "Object";
         case FieldDescriptor::TYPE_MESSAGE : return "Object";
-*/  
     }
 
       GOOGLE_LOG(FATAL) << "Can't get here.";
@@ -451,7 +448,11 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
 
 
   void RepeatedPrimitiveFieldGenerator::GeneratePropertyHeader(io::Printer* printer) const {
-    printer->Print(variables_, "@property (readonly, strong) PBArray * $name$;\n");
+ 		if(isObjectArray(descriptor_)){
+			printer->Print(variables_, "@property (readonly, strong) NSArray * $name$;\n");
+		}else{
+			printer->Print(variables_, "@property (readonly, strong) PBArray * $name$;\n");
+		}
   }
 
 
