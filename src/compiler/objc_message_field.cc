@@ -125,33 +125,33 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
   void MessageFieldGenerator::GenerateBuilderMembersSource(io::Printer* printer) const {
     printer->Print(variables_,
       "- (BOOL) has$capitalized_name$ {\n"
-      "  return result.has$capitalized_name$;\n"
+      "  return builder_result.has$capitalized_name$;\n"
       "}\n"
       "- ($storage_type$) $name$ {\n"
-      "  return result.$name$;\n"
+      "  return builder_result.$name$;\n"
       "}\n"
       "- ($classname$_Builder*) set$capitalized_name$:($storage_type$) value {\n"
-      "  result.has$capitalized_name$ = YES;\n"
-      "  result.$name$ = value;\n"
+      "  builder_result.has$capitalized_name$ = YES;\n"
+      "  builder_result.$name$ = value;\n"
       "  return self;\n"
       "}\n"
       "- ($classname$_Builder*) set$capitalized_name$Builder:($type$_Builder*) builderForValue {\n"
       "  return [self set$capitalized_name$:[builderForValue build]];\n"
       "}\n"
       "- ($classname$_Builder*) merge$capitalized_name$:($storage_type$) value {\n"
-      "  if (result.has$capitalized_name$ &&\n"
-      "      result.$name$ != [$type$ defaultInstance]) {\n"
-      "    result.$name$ =\n"
-      "      [[[$type$ builderWithPrototype:result.$name$] mergeFrom:value] buildPartial];\n"
+      "  if (builder_result.has$capitalized_name$ &&\n"
+      "      builder_result.$name$ != [$type$ defaultInstance]) {\n"
+      "    builder_result.$name$ =\n"
+      "      [[[$type$ builderWithPrototype:builder_result.$name$] mergeFrom:value] buildPartial];\n"
       "  } else {\n"
-      "    result.$name$ = value;\n"
+      "    builder_result.$name$ = value;\n"
       "  }\n"
-      "  result.has$capitalized_name$ = YES;\n"
+      "  builder_result.has$capitalized_name$ = YES;\n"
       "  return self;\n"
       "}\n"
       "- ($classname$_Builder*) clear$capitalized_name$ {\n"
-      "  result.has$capitalized_name$ = NO;\n"
-      "  result.$name$ = [$type$ defaultInstance];\n"
+      "  builder_result.has$capitalized_name$ = NO;\n"
+      "  builder_result.$name$ = [$type$ defaultInstance];\n"
       "  return self;\n"
       "}\n");
   }
@@ -357,31 +357,31 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
 		      "- ($classname$_Builder *)set$capitalized_name$Array:(NSArray *)array;\n"
 		      "- ($classname$_Builder *)set$capitalized_name$Values:(const $storage_type$ *)values count:(NSUInteger)count;\n"
 		      "- ($classname$_Builder *)clear$capitalized_name$;\n");
-		
+
 		}
   }
 
   void RepeatedMessageFieldGenerator::GenerateBuilderMembersSource(io::Printer* printer) const {
     printer->Print(variables_,
       "- (NSMutableArray *)$name$ {\n"
-      "  return result.$list_name$;\n"
+      "  return builder_result.$list_name$;\n"
       "}\n"
       "- ($storage_type$)$name$AtIndex:(NSUInteger)index {\n"
-      "  return [result $name$AtIndex:index];\n"
+      "  return [builder_result $name$AtIndex:index];\n"
       "}\n"
       "- ($classname$_Builder *)add$capitalized_name$:($storage_type$)value {\n"
-      "  if (result.$list_name$ == nil) {\n"
-      "    result.$list_name$ = [[NSMutableArray alloc]init];\n"
+      "  if (builder_result.$list_name$ == nil) {\n"
+      "    builder_result.$list_name$ = [[NSMutableArray alloc]init];\n"
       "  }\n"
-      "  [result.$list_name$ addObject:value];\n"
+      "  [builder_result.$list_name$ addObject:value];\n"
       "  return self;\n"
       "}\n"
       "- ($classname$_Builder *)set$capitalized_name$Array:(NSArray *)array {\n"
-      "  result.$list_name$ = [[NSMutableArray alloc]initWithArray:array];\n"
+      "  builder_result.$list_name$ = [[NSMutableArray alloc]initWithArray:array];\n"
       "  return self;\n"
       "}\n"
       "- ($classname$_Builder *)clear$capitalized_name$ {\n"
-      "  result.$list_name$ = nil;\n"
+      "  builder_result.$list_name$ = nil;\n"
       "  return self;\n"
       "}\n");
   }
@@ -412,22 +412,22 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
 	if(isObjectArray(descriptor_)){
 		printer->Print(variables_,
 	      "if (other.$list_name$.count > 0) {\n"
-	      "  if (result.$list_name$ == nil) {\n"
-	      "    result.$list_name$ = [[NSMutableArray alloc] initWithArray:other.$list_name$];\n"
+	      "  if (builder_result.$list_name$ == nil) {\n"
+	      "    builder_result.$list_name$ = [[NSMutableArray alloc] initWithArray:other.$list_name$];\n"
 	      "  } else {\n"
-	      "    [result.$list_name$ addObjectsFromArray:other.$list_name$];\n"
+	      "    [builder_result.$list_name$ addObjectsFromArray:other.$list_name$];\n"
 	      "  }\n"
       	  "}\n");
 	}else{
 		printer->Print(variables_,
 	      "if (other.$list_name$.count > 0) {\n"
-	      "  if (result.$list_name$ == nil) {\n"
-	      "    result.$list_name$ = [other.$list_name$ copy];\n"
+	      "  if (builder_result.$list_name$ == nil) {\n"
+	      "    builder_result.$list_name$ = [other.$list_name$ copy];\n"
 	      "  } else {\n"
-	      "    [result.$list_name$ appendArray:other.$list_name$];\n"
+	      "    [builder_result.$list_name$ appendArray:other.$list_name$];\n"
 	      "  }\n"
       	  "}\n");
-    	
+
 	}
   }
 
