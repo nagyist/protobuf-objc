@@ -364,11 +364,7 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
   void RepeatedEnumFieldGenerator::GenerateMergingCodeSource(io::Printer* printer) const {
     printer->Print(variables_,
       "if (other.$list_name$.count > 0) {\n"
-      "  if (builder_result.$list_name$ == nil) {\n"
-      "    builder_result.$list_name$ = [other.$list_name$ copy];\n"
-      "  } else {\n"
-      "    [builder_result.$list_name$ appendArray:other.$list_name$];\n"
-      "  }\n"
+      "  builder_result.$list_name$ = [other.$list_name$ copy];\n"
       "}\n");
   }
 
@@ -477,7 +473,7 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
 
 
   void RepeatedEnumFieldGenerator::GenerateIsEqualCodeSource(io::Printer* printer) const {
-    printer->Print(variables_, "[self.$list_name$ isEqualToArray:otherMessage.$list_name$] &&");
+    printer->Print(variables_, "(self.$list_name$ == otherMessage.$list_name$ || [self.$list_name$ isEqualToArray:otherMessage.$list_name$]) &&");
   }
 
 
