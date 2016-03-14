@@ -147,7 +147,11 @@ namespace google { namespace protobuf { namespace compiler {namespace objectivec
             
             printer.Print("@class $value$;\n\n", "value", generatedClassName + "_Builder");
             
+            printer.Print("NS_ASSUME_NONNULL_BEGIN\n\n");
+            
             MessageGenerator(descriptor).GenerateMessageHeader(&printer);
+            
+            printer.Print("NS_ASSUME_NONNULL_END\n\n");
         }
     }
     

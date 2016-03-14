@@ -293,7 +293,7 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
   void RepeatedMessageFieldGenerator::GeneratePropertyHeader(io::Printer* printer) const {
 		//check if object array vs primitive array
 		if(isObjectArray(descriptor_)){
-			printer->Print(variables_, "@property (readonly, strong) NSArray * $name$;\n");
+			printer->Print(variables_, "@property (readonly, strong, nullable) NSArray * $name$;\n");
 		}else{
 			printer->Print(variables_, "@property (readonly, strong) PBArray * $name$;\n");
 		}
