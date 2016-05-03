@@ -263,6 +263,9 @@ namespace google { namespace protobuf { namespace compiler {namespace objectivec
       "#import \"$header_file$\"\n\n",
       "header_file", header_file);
 
+	printer->Print("#pragma clang diagnostic push\n");
+	printer->Print("#pragma clang diagnostic ignored \"-Wshadow-ivar\"\n\n");
+
     printer->Print(
       "@implementation $classname$\n",
       "classname", classname_);
@@ -351,6 +354,8 @@ namespace google { namespace protobuf { namespace compiler {namespace objectivec
     for (int i = 0; i < file_->message_type_count(); i++) {
       MessageGenerator(file_->message_type(i)).GenerateSource(printer);
     }
+    
+	printer->Print("#pragma clang diagnostic pop\n");
   }
 }  // namespace objectivec
 }  // namespace compiler
