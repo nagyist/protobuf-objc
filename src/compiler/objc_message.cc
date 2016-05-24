@@ -29,6 +29,10 @@
 #include "objc_enum.h"
 #include "objc_extension.h"
 #include "objc_helpers.h"
+#include <string>
+#include <sstream>
+#include <vector>
+#include "objc_enum_field.h"
 
 namespace google { namespace protobuf { namespace compiler { namespace objectivec {
 
@@ -452,6 +456,20 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
     io::Printer* printer, const Descriptor::ExtensionRange* range) {
   }
 
+  bool MessageGenerator::shouldHavePartiallyMerge() {
+        char * p = ::getenv("PROTOC_GEN_OBJC_CLASSES_WITH_PARTIALLY_MERGE");
+        if (p != NULL) {
+            string s(p);
+            std::stringstream ss(s);
+            std::string item;
+            while (std::getline(ss, item, ',')) {
+                if (item == ClassName(descriptor_)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+  }
 
   void MessageGenerator::GenerateBuilderHeader(io::Printer* printer) {
     if (descriptor_->extension_range_count() > 0) {
@@ -472,6 +490,10 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
 
     GenerateCommonBuilderMethodsHeader(printer);
     GenerateBuilderParsingMethodsHeader(printer);
+    
+    if (shouldHavePartiallyMerge()) {
+      GenerateBuilderPartiallyMergeMethod(printer);
+    }
 
     for (int i = 0; i < descriptor_->field_count(); i++) {
       printer->Print("\n");
@@ -527,6 +549,12 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
       "classname", ClassName(descriptor_));
   }
 
+  void MessageGenerator::GenerateBuilderPartiallyMergeMethod(io::Printer* printer) {
+      printer->Print(
+                     "- ($classname$_Builder*) partiallyMergeFrom:($classname$*) other fieldIDs:(NSSet <NSNumber *> *)fieldIDs;\n",
+                     "classname", ClassName(descriptor_));
+  }
+    
 
   void MessageGenerator::GenerateIsInitializedHeader(io::Printer* printer) {
     printer->Print(
@@ -845,6 +873,9 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
 
     GenerateCommonBuilderMethodsSource(printer);
     GenerateBuilderParsingMethodsSource(printer);
+    if (shouldHavePartiallyMerge()) {
+      GenerateBuilderPartiallyMergeMethodSource(printer);
+    }
 
     for (int i = 0; i < descriptor_->field_count(); i++) {
       field_generators_.get(descriptor_->field(i)).GenerateBuilderMembersSource(printer);
@@ -989,6 +1020,64 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
       "  }\n"   // while (true)
       "}\n");
   }
+    
+    void MessageGenerator::GenerateBuilderPartiallyMergeMethodSource(io::Printer* printer) {
+        scoped_array<const FieldDescriptor*> sorted_fields(SortFieldsByNumber(descriptor_));
+
+        printer->Print("\n"
+                       "- ($classname$_Builder*) partiallyMergeFrom:($classname$*) other fieldIDs:(NSSet <NSNumber *> *)fieldIDs {\n",
+                       "classname", ClassName(descriptor_));
+        printer->Indent();
+        for (int i = 0; i < descriptor_->field_count(); i++) {
+            const FieldDescriptor* field = sorted_fields[i];
+            uint32 tag = WireFormatLite::MakeTag(field->number(),
+                                                 WireFormat::WireTypeForField(field));
+            map<string, string> vars;
+            vars["capitalized_name"] = UnderscoresToCapitalizedCamelCase(field);
+            vars["field_name"] = UnderscoresToCamelCase(field);
+            vars["number"] = SimpleItoa(field->number());
+            
+            printer->Print(vars, "if ([fieldIDs containsObject:@$number$]) {\n");
+            printer->Indent();
+            
+            if (field->is_repeated()) {
+                printer->Print(vars,"if (other.$field_name$ != nil) {\n");
+                printer->Indent();
+                switch (GetObjectiveCType(field)) {
+                    case OBJECTIVECTYPE_MESSAGE:
+                    case OBJECTIVECTYPE_STRING:
+                        printer->Print(vars, "[self set$capitalized_name$Array: other.$field_name$];\n");
+                        break;
+                    default:
+                        printer->Print(vars, "[self set$capitalized_name$Array: [other.$field_name$ toNumberArray]];\n");
+                        break;
+                }
+                printer->Outdent();
+                printer->Print("} else {\n");
+                printer->Indent();
+                printer->Print(vars, "[self clear$capitalized_name$];\n");
+                printer->Outdent();
+                printer->Print("}\n");
+            }
+            else {
+                printer->Print(vars, "if ([other has$capitalized_name$]) {\n");
+                printer->Indent();
+                printer->Print(vars, "[self set$capitalized_name$: other.$field_name$];\n");
+                printer->Outdent();
+                printer->Print("} else {\n");
+                printer->Indent();
+                printer->Print(vars, "[self clear$capitalized_name$];\n");
+                printer->Outdent();
+                printer->Print("}\n");
+            }            
+            
+            printer->Outdent();
+            printer->Print("}\n");
+        }
+        printer->Print("return self;\n");
+        printer->Outdent();
+        printer->Print("}\n\n");
+    }
 
 
   void MessageGenerator::GenerateIsInitializedSource(io::Printer* printer) {
