@@ -174,10 +174,18 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
   }
 
   bool IsRetainedName(const string& name) {
-    static std::string retainednames[] = { "new", "alloc", "copy", "mutableCopy" };
-    for (size_t i = 0; i < sizeof(retainednames) / sizeof(retainednames[0]); ++i) {
-      if (name.compare(0, retainednames[i].length(), retainednames[i]) == 0) {
-        return true;
+    static std::string retainedPrefixes[] = { "new", "alloc", "copy", "mutableCopy" };
+    for (size_t i = 0; i < sizeof(retainedPrefixes) / sizeof(retainedPrefixes[0]); ++i) {
+      std::string retainedPrefix = retainedPrefixes[i];
+      if (name.compare(0, retainedPrefix.length(), retainedPrefix) == 0) {
+        if (name.length() == retainedPrefix.length()) {
+          return true;
+        } else if (name.length() > retainedPrefix.length()) {
+          char characterAfterRetainedPrefix = name.at(retainedPrefix.length());
+          if (isupper(characterAfterRetainedPrefix)) {
+            return true;
+          }
+        }
       }
     }
     return false;
