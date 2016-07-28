@@ -449,7 +449,7 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
 
   void RepeatedPrimitiveFieldGenerator::GeneratePropertyHeader(io::Printer* printer) const {
  		if(isObjectArray(descriptor_)){
-			printer->Print(variables_, "@property (readonly, strong, nullable) NSArray * $name$;\n");
+			printer->Print(variables_, "@property (readonly, strong, nullable) NSArray<$storage_type$> * $name$;\n");
 		}else{
 			printer->Print(variables_, "@property (readonly, strong, nullable) PBArray * $name$;\n");
 		}
