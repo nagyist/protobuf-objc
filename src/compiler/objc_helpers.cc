@@ -192,7 +192,9 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
   }
 
   bool IsReservedName(const string& name) {
-    static std::string retainednames[] = { "hash" };
+    //  We didn't include 'description' here as it's already been used extensively. Removing it will likely introduce bugs
+    //  as it will change method called, but not result in compilation error
+    static std::string retainednames[] = { "hash", "class", "superclass", "isProxy", "debugDescription", "zone", "self", "retain", "release", "autorelease", "retainCount" };
     for (size_t i = 0; i < sizeof(retainednames) / sizeof(retainednames[0]); ++i) {
       if (name.compare(0, retainednames[i].length(), retainednames[i]) == 0) {
         return true;
