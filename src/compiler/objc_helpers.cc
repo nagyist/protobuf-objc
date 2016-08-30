@@ -191,6 +191,16 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
     return false;
   }
 
+  bool IsReservedName(const string& name) {
+    static std::string retainednames[] = { "hash" };
+    for (size_t i = 0; i < sizeof(retainednames) / sizeof(retainednames[0]); ++i) {
+      if (name.compare(0, retainednames[i].length(), retainednames[i]) == 0) {
+        return true;
+      }
+    }
+    return false;
+  }
+  
   bool IsBootstrapFile(const FileDescriptor* file) {
     return file->name() == "google/protobuf/descriptor.proto";
   }

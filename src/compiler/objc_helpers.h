@@ -49,6 +49,10 @@ string StripProto(const string& filename);
 // to it.
 bool IsRetainedName(const string& name);
 
+// Returns true if the name is reserved and can't be used as is.
+// ReservedNameProperty will be generated.
+bool IsReservedName(const string& name);
+
 bool IsBootstrapFile(const FileDescriptor* file);
 
 // Gets the name of the file we're going to generate (sans the .pb.h

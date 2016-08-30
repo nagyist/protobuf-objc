@@ -33,8 +33,14 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
       map<string, string>* variables) {
         std::string name = UnderscoresToCamelCase(descriptor);
         (*variables)["classname"] = ClassName(descriptor->containing_type());
-        (*variables)["name"] = name;
-        (*variables)["capitalized_name"] = UnderscoresToCapitalizedCamelCase(descriptor);
+        if (IsReservedName(name)) {
+          (*variables)["name"] = name + "Property";
+          (*variables)["capitalized_name"] = UnderscoresToCapitalizedCamelCase(descriptor) + "Property";
+        } else {
+          (*variables)["name"] = name;
+          (*variables)["capitalized_name"] = UnderscoresToCapitalizedCamelCase(descriptor);
+        }
+        
         (*variables)["list_name"] = UnderscoresToCamelCase(descriptor) + "Array";
         (*variables)["number"] = SimpleItoa(descriptor->number());
         (*variables)["type"] = ClassName(descriptor->message_type());
