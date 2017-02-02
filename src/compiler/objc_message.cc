@@ -255,26 +255,20 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
 
     if (descriptor_->extension_range_count() > 0) {
       printer->Print(
-        "@interface $classname$ : PBExtendableMessage {\n"
-        "@private\n",
+        "@interface $classname$ : PBExtendableMessage\n",
         "classname", ClassName(descriptor_));
     } else {
       printer->Print(
-        "@interface $classname$ : PBGeneratedMessage {\n"
-        "@private\n",
+        "@interface $classname$ : PBGeneratedMessage\n",
         "classname", ClassName(descriptor_));
     }
 
-    printer->Indent();
-    for (int i = 0; i < descriptor_->field_count(); i++) {
-      field_generators_.get(sorted_fields[i]).GenerateHasFieldHeader(printer);
-    }
-    for (int i = 0; i < descriptor_->field_count(); i++) {
-      field_generators_.get(sorted_fields[i]).GenerateFieldHeader(printer);
-    }
-    printer->Outdent();
-
-    printer->Print("}\n");
+    // for (int i = 0; i < descriptor_->field_count(); i++) {
+    //   field_generators_.get(sorted_fields[i]).GenerateHasFieldHeader(printer);
+    // }
+    // for (int i = 0; i < descriptor_->field_count(); i++) {
+    //   field_generators_.get(sorted_fields[i]).GenerateFieldHeader(printer);
+    // }
 
     for (int i = 0; i < descriptor_->field_count(); i++) {
       field_generators_.get(descriptor_->field(i)).GenerateHasPropertyHeader(printer);
@@ -287,14 +281,9 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
     }
 
     printer->Print(
-      "\n"
       "+ ($classname$*) defaultInstance;\n"
       "- ($classname$*) defaultInstance;\n",
       "classname", ClassName(descriptor_));
-    printer->Print(
-      "\n",
-      "fileclass", FileClassName(descriptor_->file()),
-      "identifier", UniqueFileScopeIdentifier(descriptor_));
 
     for (int i = 0; i < descriptor_->extension_count(); i++) {
       ExtensionGenerator(ClassName(descriptor_), descriptor_->extension(i)).GenerateMembersHeader(printer);
@@ -310,8 +299,6 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
       "- ($classname$_Builder*) toBuilder;\n",
       "classname", ClassName(descriptor_));
 
-    GenerateParseFromMethodsHeader(printer);
-
     printer->Print("@end\n\n");
 
     for (int i = 0; i < descriptor_->nested_type_count(); i++) {
@@ -323,6 +310,10 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
 
 
   void MessageGenerator::GenerateSource(io::Printer* printer) {
+    if (isDummyMessage(ClassName(descriptor_))) {
+      return;
+    }
+
     printer->Print(
       "@interface $classname$ ()\n",
       "classname", ClassName(descriptor_));
@@ -382,8 +373,6 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
     GenerateIsInitializedSource(printer);
     GenerateMessageSerializationMethodsSource(printer);
 
-    GenerateParseFromMethodsSource(printer);
-
     printer->Print(
       "+ ($classname$_Builder*) builder {\n"
       "  return [[$classname$_Builder alloc] init];\n"
@@ -428,9 +417,6 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
     }
     sort(sorted_extensions.begin(), sorted_extensions.end(),
       ExtensionRangeOrdering());
-
-    printer->Print(
-      "- (void) writeToCodedOutputStream:(PBCodedOutputStream*) output;\n");
   }
 
   void MessageGenerator::GenerateParseFromMethodsHeader(io::Printer* printer) {
@@ -456,47 +442,32 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
     io::Printer* printer, const Descriptor::ExtensionRange* range) {
   }
 
-  bool MessageGenerator::shouldHavePartiallyMerge() {
-        char * p = ::getenv("PROTOC_GEN_OBJC_CLASSES_WITH_PARTIALLY_MERGE");
-        if (p != NULL) {
-            string s(p);
-            std::stringstream ss(s);
-            std::string item;
-            while (std::getline(ss, item, ',')) {
-                if (item == ClassName(descriptor_)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-  }
-
   void MessageGenerator::GenerateBuilderHeader(io::Printer* printer) {
     if (descriptor_->extension_range_count() > 0) {
       printer->Print(
-        "@interface $classname$_Builder : PBExtendableMessage_Builder {\n",
+        "@interface $classname$_Builder : PBExtendableMessage_Builder\n",
         "classname", ClassName(descriptor_));
     } else {
       printer->Print(
-        "@interface $classname$_Builder : PBGeneratedMessage_Builder {\n",
+        "@interface $classname$_Builder : PBGeneratedMessage_Builder",
         "classname", ClassName(descriptor_));
     }
 
-    printer->Print(
-      "@private\n"
-      "  $classname$* builder_result;\n"
-      "}\n",
-      "classname", ClassName(descriptor_));
-
     GenerateCommonBuilderMethodsHeader(printer);
     GenerateBuilderParsingMethodsHeader(printer);
-    
-    if (shouldHavePartiallyMerge()) {
+
+    if (hasPartiallyMerge(ClassName(descriptor_))) {
       GenerateBuilderPartiallyMergeMethod(printer);
     }
 
     for (int i = 0; i < descriptor_->field_count(); i++) {
       printer->Print("\n");
+      if (hasPartiallyMerge(ClassName(descriptor_)) || hasBuilderGetterInHeader(ClassName(descriptor_))) {
+        field_generators_.get(descriptor_->field(i)).GenerateBuilderGetterHeader(printer);
+      }
+      if (hasBuilderClearMethods(ClassName(descriptor_))) {
+        field_generators_.get(descriptor_->field(i)).GenerateBuilderClearHeader(printer);
+      }
       field_generators_.get(descriptor_->field(i)).GenerateBuilderMembersHeader(printer);
     }
 
@@ -507,10 +478,7 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
   void MessageGenerator::GenerateCommonBuilderMethodsHeader(io::Printer* printer) {
     printer->Print(
       "\n"
-      "- ($classname$*) defaultInstance;\n"
-      "\n"
-      "- ($classname$_Builder*) clear;\n"
-      "- ($classname$_Builder*) clone;\n",
+      "- ($classname$*) defaultInstance;\n",
       "classname", ClassName(descriptor_));
 
     printer->Print(
@@ -541,12 +509,6 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
 
 
   void MessageGenerator::GenerateBuilderParsingMethodsHeader(io::Printer* printer) {
-    scoped_array<const FieldDescriptor*> sorted_fields(SortFieldsByNumber(descriptor_));
-
-    printer->Print(
-      "- ($classname$_Builder*) mergeFromCodedInputStream:(PBCodedInputStream*) input;\n"
-      "- ($classname$_Builder*) mergeFromCodedInputStream:(PBCodedInputStream*) input extensionRegistry:(PBExtensionRegistry*) extensionRegistry;\n",
-      "classname", ClassName(descriptor_));
   }
 
   void MessageGenerator::GenerateBuilderPartiallyMergeMethod(io::Printer* printer) {
@@ -554,11 +516,9 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
                      "- ($classname$_Builder*) partiallyMergeFrom:($classname$*) other fieldIDs:(NSSet <NSNumber *> *)fieldIDs;\n",
                      "classname", ClassName(descriptor_));
   }
-    
+
 
   void MessageGenerator::GenerateIsInitializedHeader(io::Printer* printer) {
-    printer->Print(
-      "- (BOOL) isInitialized;\n");
   }
 
 
@@ -767,28 +727,7 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
 
 
   void MessageGenerator::GenerateParseFromMethodsSource(io::Printer* printer) {
-    printer->Print(
-      "+ ($classname$*) parseFromData:(NSData*) data {\n"
-      "  return ($classname$*)[[[$classname$ builder] mergeFromData:data] build];\n"
-      "}\n"
-      "+ ($classname$*) parseFromData:(NSData*) data extensionRegistry:(PBExtensionRegistry*) extensionRegistry {\n"
-      "  return ($classname$*)[[[$classname$ builder] mergeFromData:data extensionRegistry:extensionRegistry] build];\n"
-      "}\n"
-      "+ ($classname$*) parseFromInputStream:(NSInputStream*) input {\n"
-      "  return ($classname$*)[[[$classname$ builder] mergeFromInputStream:input] build];\n"
-      "}\n"
-      "+ ($classname$*) parseFromInputStream:(NSInputStream*) input extensionRegistry:(PBExtensionRegistry*) extensionRegistry {\n"
-      "  return ($classname$*)[[[$classname$ builder] mergeFromInputStream:input extensionRegistry:extensionRegistry] build];\n"
-      "}\n"
-      "+ ($classname$*) parseFromCodedInputStream:(PBCodedInputStream*) input {\n"
-      "  return ($classname$*)[[[$classname$ builder] mergeFromCodedInputStream:input] build];\n"
-      "}\n"
-      "+ ($classname$*) parseFromCodedInputStream:(PBCodedInputStream*) input extensionRegistry:(PBExtensionRegistry*) extensionRegistry {\n"
-      "  return ($classname$*)[[[$classname$ builder] mergeFromCodedInputStream:input extensionRegistry:extensionRegistry] build];\n"
-      "}\n",
-      "classname", ClassName(descriptor_));
   }
-
 
   void MessageGenerator::GenerateSerializeOneFieldSource(
     io::Printer* printer, const FieldDescriptor* field) {
@@ -873,12 +812,18 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
 
     GenerateCommonBuilderMethodsSource(printer);
     GenerateBuilderParsingMethodsSource(printer);
-    if (shouldHavePartiallyMerge()) {
+    if (hasPartiallyMerge(ClassName(descriptor_))) {
       GenerateBuilderPartiallyMergeMethodSource(printer);
     }
 
     for (int i = 0; i < descriptor_->field_count(); i++) {
       field_generators_.get(descriptor_->field(i)).GenerateBuilderMembersSource(printer);
+      if (hasPartiallyMerge(ClassName(descriptor_)) || hasBuilderGetterInHeader(ClassName(descriptor_))) {
+        field_generators_.get(descriptor_->field(i)).GenerateBuilderGetterSource(printer);
+      }
+      if (hasPartiallyMerge(ClassName(descriptor_)) || hasBuilderClearMethods(ClassName(descriptor_))) {
+        field_generators_.get(descriptor_->field(i)).GenerateBuilderClearSource(printer);
+      }
     }
 
     printer->Print("@end\n\n");
@@ -899,13 +844,6 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
     }
 
     printer->Print(
-      "- ($classname$_Builder*) clear {\n"
-      "  self.builder_result = [[$classname$ alloc] init];\n"
-      "  return self;\n"
-      "}\n"
-      "- ($classname$_Builder*) clone {\n"
-      "  return [$classname$ builderWithPrototype:builder_result];\n"
-      "}\n"
       "- ($classname$*) defaultInstance {\n"
       "  return [$classname$ defaultInstance];\n"
       "}\n",
@@ -965,9 +903,6 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
       SortFieldsByNumber(descriptor_));
 
     printer->Print(
-      "- ($classname$_Builder*) mergeFromCodedInputStream:(PBCodedInputStream*) input {\n"
-      "  return [self mergeFromCodedInputStream:input extensionRegistry:[PBExtensionRegistry emptyRegistry]];\n"
-      "}\n"
       "- ($classname$_Builder*) mergeFromCodedInputStream:(PBCodedInputStream*) input extensionRegistry:(PBExtensionRegistry*) extensionRegistry {\n",
       "classname", ClassName(descriptor_));
     printer->Indent();
@@ -1020,7 +955,7 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
       "  }\n"   // while (true)
       "}\n");
   }
-    
+
     void MessageGenerator::GenerateBuilderPartiallyMergeMethodSource(io::Printer* printer) {
         scoped_array<const FieldDescriptor*> sorted_fields(SortFieldsByNumber(descriptor_));
 
@@ -1036,10 +971,10 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
             vars["capitalized_name"] = UnderscoresToCapitalizedCamelCase(field);
             vars["field_name"] = UnderscoresToCamelCase(field);
             vars["number"] = SimpleItoa(field->number());
-            
+
             printer->Print(vars, "if ([fieldIDs containsObject:@$number$]) {\n");
             printer->Indent();
-            
+
             if (field->is_repeated()) {
                 printer->Print(vars,"if (other.$field_name$ != nil) {\n");
                 printer->Indent();
@@ -1069,8 +1004,8 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
                 printer->Print(vars, "[self clear$capitalized_name$];\n");
                 printer->Outdent();
                 printer->Print("}\n");
-            }            
-            
+            }
+
             printer->Outdent();
             printer->Print("}\n");
         }
