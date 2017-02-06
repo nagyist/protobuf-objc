@@ -280,11 +280,6 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
       field_generators_.get(descriptor_->field(i)).GenerateMembersHeader(printer);
     }
 
-    printer->Print(
-      "+ ($classname$*) defaultInstance;\n"
-      "- ($classname$*) defaultInstance;\n",
-      "classname", ClassName(descriptor_));
-
     for (int i = 0; i < descriptor_->extension_count(); i++) {
       ExtensionGenerator(ClassName(descriptor_), descriptor_->extension(i)).GenerateMembersHeader(printer);
     }
@@ -347,24 +342,6 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
     for (int i = 0; i < descriptor_->extension_count(); i++) {
       ExtensionGenerator(ClassName(descriptor_), descriptor_->extension(i)).GenerateMembersSource(printer);
     }
-
-    printer->Print(
-      "static $classname$* default$classname$Instance = nil;\n"
-      "+ (void) initialize {\n"
-      "  if (self == [$classname$ class]) {\n"
-      "    default$classname$Instance = [[$classname$ alloc] init];\n",
-      "classname", ClassName(descriptor_));
-
-    printer->Print(
-      "  }\n"
-      "}\n"
-      "+ ($classname$*) defaultInstance {\n"
-      "  return default$classname$Instance;\n"
-      "}\n"
-      "- ($classname$*) defaultInstance {\n"
-      "  return default$classname$Instance;\n"
-      "}\n",
-      "classname", ClassName(descriptor_));
 
     for (int i = 0; i < descriptor_->field_count(); i++) {
       field_generators_.get(descriptor_->field(i)).GenerateMembersSource(printer);
