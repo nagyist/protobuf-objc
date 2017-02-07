@@ -25,6 +25,9 @@
 #include <google/protobuf/stubs/strutil.h>
 
 #include "google/protobuf/objectivec-descriptor.pb.h"
+#include <string>
+#include <sstream>
+
 
 namespace google { namespace protobuf { namespace compiler { namespace objectivec {
   namespace {
@@ -202,7 +205,7 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
     }
     return false;
   }
-  
+
   bool IsBootstrapFile(const FileDescriptor* file) {
     return file->name() == "google/protobuf/descriptor.proto";
   }
@@ -442,17 +445,17 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
   string BoxValue(const FieldDescriptor* field, const string& value) {
     switch (GetObjectiveCType(field)) {
       case OBJECTIVECTYPE_INT:
-        return "[NSNumber numberWithInt:" + value + "]";
+        return "@(" + value + ")";
       case OBJECTIVECTYPE_LONG:
-        return "[NSNumber numberWithLongLong:" + value + "]";
+        return "@(" + value + ")";
       case OBJECTIVECTYPE_FLOAT:
-        return "[NSNumber numberWithFloat:" + value + "]";
+        return "@(" + value + ")";
       case OBJECTIVECTYPE_DOUBLE:
-        return "[NSNumber numberWithDouble:" + value + "]";
+        return "@(" + value + ")";
       case OBJECTIVECTYPE_BOOLEAN:
-        return "[NSNumber numberWithBool:" + value + "]";
+        return "@(" + value + ")";
       case OBJECTIVECTYPE_ENUM:
-        return "[NSNumber numberWithInt:" + value + "]";
+        return "@(" + value + ")";
     }
 
     return value;
@@ -581,6 +584,33 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
 	    return NULL;
   }
 
+  bool hasClassSpecificFeature(string classname, const char *featureName) {
+    char * p = ::getenv(featureName);
+    if (p != NULL) {
+        string s(p);
+        std::stringstream ss(s);
+        std::string item;
+        while (std::getline(ss, item, ',')) {
+            if (item == classname) {
+                return true;
+            }
+        }
+    }
+    return false;
+  }
+
+  bool hasPartiallyMerge(string classname) {
+    return hasClassSpecificFeature(classname, "PROTOC_GEN_OBJC_CLASSES_WITH_PARTIALLY_MERGE");
+  }
+  bool hasBuilderClearMethods(string classname) {
+    return hasClassSpecificFeature(classname, "PROTOC_GEN_OBJC_CLASSES_WITH_BUILDER_CLEAR");
+  }
+  bool hasBuilderGetterInHeader(string classname) {
+    return hasClassSpecificFeature(classname, "PROTOC_GEN_OBJC_CLASSES_WITH_BUILDER_GETTERS");
+  }
+  bool isDummyMessage(string classname) {
+    return hasClassSpecificFeature(classname, "PROTOC_GEN_OBJC_DUMMY_MESSAGES");
+  }
 
   // Escape C++ trigraphs by escaping question marks to \?
   string EscapeTrigraphs(const string& to_escape) {

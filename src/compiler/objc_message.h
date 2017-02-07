@@ -95,8 +95,6 @@ class MessageGenerator {
   void GenerateBuilderPartiallyMergeMethodSource(io::Printer* printer);
   void GenerateIsInitializedSource(io::Printer* printer);
 
-  bool shouldHavePartiallyMerge();
-    
   const Descriptor* descriptor_;
   FieldGeneratorMap field_generators_;
 

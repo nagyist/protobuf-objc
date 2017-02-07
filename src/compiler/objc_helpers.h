@@ -115,6 +115,11 @@ const char* GetArrayValueType(const FieldDescriptor* field);
 
 bool isObjectArray(const FieldDescriptor* field);
 
+bool hasPartiallyMerge(string classname);
+bool hasBuilderClearMethods(string classname);
+bool hasBuilderGetterInHeader(string classname);
+bool isDummyMessage(string classname);
+
 // Escape C++ trigraphs by escaping question marks to \?
 string EscapeTrigraphs(const string& to_escape);
 
