@@ -389,21 +389,37 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
   }
 
   void RepeatedMessageFieldGenerator::GenerateBuilderMembersSource(io::Printer* printer) const {
-    printer->Print(variables_,
-      "- ($classname$_Builder *)add$capitalized_name$:($storage_type$)value {\n"
-      "  if (builder_result.$list_name$ == nil) {\n"
-      "    builder_result.$list_name$ = [[NSMutableArray alloc]init];\n"
-      "  }\n"
-      "  [builder_result.$list_name$ addObject:value];\n"
-      "  return self;\n"
-      "}\n"
-      "- ($classname$_Builder *)set$capitalized_name$Array:(NSArray *)array {\n"
-      "  builder_result.$list_name$ = [[NSMutableArray alloc]initWithArray:array];\n"
-      "  return self;\n"
-      "}\n"
-      "+ (Class)expectedElementTypeFor$capitalized_name$Array{\n"
-      "  return [$storage_type$ class];\n"
-      "}\n"
+      
+    if(isObjectArray(descriptor_)) {
+        printer->Print(variables_,
+          "- ($classname$_Builder *)add$capitalized_name$:($storage_type$)value {\n"
+          "  if (builder_result.$list_name$ == nil) {\n"
+          "    builder_result.$list_name$ = [[NSMutableArray alloc]init];\n"
+          "  }\n"
+          "  [builder_result.$list_name$ addObject:value];\n"
+          "  return self;\n"
+          "}\n"
+          "- ($classname$_Builder *)set$capitalized_name$Array:(NSArray *)array {\n"
+          "  builder_result.$list_name$ = [[NSMutableArray alloc]initWithArray:array];\n"
+          "  return self;\n"
+          "}\n"
+          "+ (Class)expectedElementTypeFor$capitalized_name$Array{\n"
+          "  return [$storage_type$ class];\n"
+          "}\n");
+    } else {
+        printer->Print(variables_,
+          "- ($classname$_Builder *)add$capitalized_name$:($storage_type$)value {\n"
+          "  if (builder_result.$list_name$ == nil) {\n"
+          "    builder_result.$list_name$ = [[NSMutableArray alloc]init];\n"
+          "  }\n"
+          "  [builder_result.$list_name$ addObject:value];\n"
+          "  return self;\n"
+          "}\n"
+          "- ($classname$_Builder *)set$capitalized_name$Array:(NSArray *)array {\n"
+          "  builder_result.$list_name$ = [[NSMutableArray alloc]initWithArray:array];\n"
+          "  return self;\n"
+          "}\n");
+    }
   }
 
 

@@ -585,7 +585,7 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
 	      "}\n"
 	      "+ (Class)expectedElementTypeFor$capitalized_name$Array{\n"
 	      "  return [$storage_type$ class];\n"
-	      "}\n"
+	      "}\n");
 	}else{
 	    printer->Print(variables_,
 	      "- ($classname$_Builder *)add$capitalized_name$:($storage_type$)value {\n"
