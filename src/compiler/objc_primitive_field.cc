@@ -482,12 +482,13 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
     if(isObjectArray(descriptor_)) {
       printer->Print(variables_,
         "- ($classname$_Builder *)add$capitalized_name$:($storage_type$)value;\n"
-        "- ($classname$_Builder *)set$capitalized_name$Array:(NSArray *)array;\n");
+        "- ($classname$_Builder *)set$capitalized_name$Array:(NSArray<$storage_type$> *)array;\n"
+        "+ (Class)expectedElementTypeFor$capitalized_name$Array;\n");
     }
     else {
       printer->Print(variables_,
         "- ($classname$_Builder *)add$capitalized_name$:($storage_type$)value;\n"
-        "- ($classname$_Builder *)set$capitalized_name$Array:(NSArray *)array;\n");
+        "- ($classname$_Builder *)set$capitalized_name$Array:(NSArray<NSNumber *> *)array;\n");
     }
   }
 
@@ -581,7 +582,10 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
 	      "- ($classname$_Builder *)set$capitalized_name$Array:(NSArray *)array {\n"
 	      "  builder_result.$list_name$ = [[NSMutableArray alloc] initWithArray:array];\n"
 	      "  return self;\n"
-	      "}\n");
+	      "}\n"
+	      "+ (Class)expectedElementTypeFor$capitalized_name$Array{\n"
+	      "  return [$storage_type$ class];\n"
+	      "}\n"
 	}else{
 	    printer->Print(variables_,
 	      "- ($classname$_Builder *)add$capitalized_name$:($storage_type$)value {\n"
