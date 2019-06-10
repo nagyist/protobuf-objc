@@ -583,8 +583,8 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
 	      "  builder_result.$list_name$ = [[NSMutableArray alloc] initWithArray:array];\n"
 	      "  return self;\n"
 	      "}\n"
-	      "+ (Class)expectedElementTypeFor$capitalized_name$Array{\n"
-	      "  return [$storage_type$ class];\n"
+	      "+ (Class)expectedElementTypeFor$capitalized_name$Array {\n"
+	      "  return [$type$ class];\n"
 	      "}\n");
 	}else{
 	    printer->Print(variables_,
