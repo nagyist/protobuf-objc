@@ -353,11 +353,12 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
 		if(isObjectArray(descriptor_)){
    		 printer->Print(variables_,
 		      "- ($classname$_Builder *)add$capitalized_name$:($storage_type$)value;\n"
-		      "- ($classname$_Builder *)set$capitalized_name$Array:(NSArray *)array;\n");
+		      "- ($classname$_Builder *)set$capitalized_name$Array:(NSArray<$storage_type$> *)array NS_SWIFT_NAME(set$capitalized_name$Array(_:));\n"
+			  "+ (Class)expectedElementTypeFor$capitalized_name$Array;\n");
 		}else{
 		  printer->Print(variables_,
 		      "- ($classname$_Builder *)add$capitalized_name$:($storage_type$)value;\n"
-		      "- ($classname$_Builder *)set$capitalized_name$Array:(NSArray *)array;\n");
+		      "- ($classname$_Builder *)set$capitalized_name$Array:(NSArray<NSNumber *> *)array NS_SWIFT_NAME(set$capitalized_name$Array(_:));\n");
 		}
   }
 
@@ -400,6 +401,12 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
       "  builder_result.$list_name$ = [[NSMutableArray alloc]initWithArray:array];\n"
       "  return self;\n"
       "}\n");
+    if(isObjectArray(descriptor_)) {
+        printer->Print(variables_,
+          "+ (Class)expectedElementTypeFor$capitalized_name$Array {\n"
+          "  return [$type$ class];\n"
+          "}\n");
+    }
   }
 
 
