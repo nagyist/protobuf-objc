@@ -76,6 +76,10 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
         "const char* $classname$StringRepresentation($classname$ value);\n"
         "\n",
         "classname", ClassName(descriptor_));
+    } else {
+      printer->Print(
+        "\n",
+        "classname", ClassName(descriptor_));
     }
   }
 
