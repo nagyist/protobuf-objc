@@ -608,6 +608,9 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
   bool hasBuilderGetterInHeader(string classname) {
     return hasClassSpecificFeature(classname, "PROTOC_GEN_OBJC_CLASSES_WITH_BUILDER_GETTERS");
   }
+  bool hasEnumStringRepresentationMethod(string classname) {
+    return hasClassSpecificFeature(classname, "PROTOC_GEN_OBJC_ENUM_WITH_STRING_REPRESENTATION");
+  }
   bool isDummyMessage(string classname) {
     return hasClassSpecificFeature(classname, "PROTOC_GEN_OBJC_DUMMY_MESSAGES");
   }
