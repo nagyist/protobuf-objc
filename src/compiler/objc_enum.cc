@@ -68,13 +68,20 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
     printer->Print(
       "};\n"
       "\n"
-      "BOOL $classname$IsValidValue($classname$ value);\n"
-      "\n",
+      "BOOL $classname$IsValidValue($classname$ value);\n",
       "classname", ClassName(descriptor_));
+
+    if (hasEnumStringRepresentationMethod(ClassName(descriptor_))) {
+      printer->Print(
+        "const char* $classname$StringRepresentation($classname$ value);\n"
+        "\n",
+        "classname", ClassName(descriptor_));
+    }
   }
 
 
   void EnumGenerator::GenerateSource(io::Printer* printer) {
+    // IsValidValue generation
     printer->Print(
       "BOOL $classname$IsValidValue($classname$ value) {\n"
       "  switch (value) {\n",
@@ -92,6 +99,25 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
       "      return NO;\n"
       "  }\n"
       "}\n");
+    
+    // StringRepresentation generation
+    if (hasEnumStringRepresentationMethod(ClassName(descriptor_))) {
+      printer->Print(
+        "const char* $classname$StringRepresentation($classname$ value) {\n"
+        "  switch (value) {\n",
+        "classname", ClassName(descriptor_));
+
+      for (int i = 0; i < canonical_values_.size(); i++) {
+        printer->Print(
+          (std::string("    case $name$:\n") +
+          std::string("      return \"") + UnderscoresToCamelCase(SafeName(canonical_values_[i]->name())) + std::string("\";\n")).c_str(),
+          "name", EnumValueName(canonical_values_[i]));
+      }
+
+      printer->Print(
+        "  }\n"
+        "}\n");
+    }
   }
 }  // namespace objectivec
 }  // namespace compiler

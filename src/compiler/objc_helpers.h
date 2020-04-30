@@ -30,6 +30,7 @@ namespace objectivec {
 // Converts the field's name to camel-case, e.g. "foo_bar_baz" becomes
 // "fooBarBaz" or "FooBarBaz", respectively.
 string UnderscoresToCamelCase(const FieldDescriptor* field);
+string UnderscoresToCamelCase(const string& name);
 string UnderscoresToCapitalizedCamelCase(const FieldDescriptor* field);
 string UnderscoresToCapitalizedCamelCase(const string& name);
 
@@ -118,6 +119,7 @@ bool isObjectArray(const FieldDescriptor* field);
 bool hasPartiallyMerge(string classname);
 bool hasBuilderClearMethods(string classname);
 bool hasBuilderGetterInHeader(string classname);
+bool hasEnumStringRepresentationMethod(string classname);
 bool isDummyMessage(string classname);
 
 // Escape C++ trigraphs by escaping question marks to \?
