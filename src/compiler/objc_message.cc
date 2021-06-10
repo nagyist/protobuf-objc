@@ -1009,6 +1009,8 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
           "  return NO;\n"
           "}\n",
           "capitalized_name", UnderscoresToCapitalizedCamelCase(field));
+      } else {
+        GenerateRequiredFieldCheckSource(printer, field);
       }
     }
 
@@ -1061,6 +1063,38 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
     printer->Print(
       "  return YES;\n"
       "}\n");
+  }
+
+  void MessageGenerator::GenerateRequiredFieldCheckSource(
+    io::Printer* printer, const FieldDescriptor* field) {
+    SourceLocation source;
+    bool has_source_location = field->GetSourceLocation(&source);
+    if (!has_source_location) { return; }
+
+    std::string comments = source.trailing_comments;
+    bool has_required_tag = comments.find("[required=true]") != std::string::npos;
+    if (!has_required_tag) { return; }
+
+    map<string,string> vars;
+    vars["capitalized_name"] = UnderscoresToCapitalizedCamelCase(field);
+    vars["name"] = UnderscoresToCamelCase(field);
+
+    switch (field->label()) {
+      case FieldDescriptor::LABEL_REQUIRED:
+        break;
+      case FieldDescriptor::LABEL_OPTIONAL:
+        printer->Print(vars,
+          "if (!self.has$capitalized_name$) {\n"
+          "  return NO;\n"
+          "}\n");
+        break;
+      case FieldDescriptor::LABEL_REPEATED:
+        printer->Print(vars,
+          "if (!self.$name$) {\n"
+          "  return NO;\n"
+          "}\n");
+        break;
+    }
   }
 }  // namespace objectivec
 }  // namespace compiler
