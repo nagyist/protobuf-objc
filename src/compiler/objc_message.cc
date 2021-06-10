@@ -106,6 +106,18 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
       return "static_" + StringReplace(descriptor->full_name(), ".", "_", true);
     }
 
+    // Returns true if the field has [required=true] flag
+    static bool HasRequiredTag(const FieldDescriptor *field) {
+      SourceLocation source;
+      bool has_source_location = field->GetSourceLocation(&source);
+      if (!has_source_location) {
+        return false;
+      }
+
+      std::string comments = source.trailing_comments;
+      return comments.find("[required=true]") != std::string::npos;
+    }
+
     // Returns true if the message type has any required fields.  If it doesn't,
     // we can optimize out calls to its isInitialized() method.
     //
@@ -137,6 +149,9 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
         for (int i = 0; i < type->field_count(); i++) {
           const FieldDescriptor* field = type->field(i);
           if (field->is_required()) {
+            return true;
+          }
+          if (HasRequiredTag(field)) {
             return true;
           }
           if (field->cpp_type() == FieldDescriptor::CPPTYPE_MESSAGE) {
@@ -1010,7 +1025,7 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
           "}\n",
           "capitalized_name", UnderscoresToCapitalizedCamelCase(field));
       } else {
-        GenerateRequiredFieldCheckSource(printer, field);
+        GenerateRequiredFieldCheckSourceIfNeeded(printer, field);
       }
     }
 
@@ -1033,12 +1048,19 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
                 "}\n");
               break;
             case FieldDescriptor::LABEL_OPTIONAL:
-              printer->Print(vars,
-                "if (self.has$capitalized_name$) {\n"
-                "  if (!self.$name$.isInitialized) {\n"
-                "    return NO;\n"
-                "  }\n"
-                "}\n");
+              if (HasRequiredTag(field)) {
+                printer->Print(vars,
+                  "if (!self.$name$.isInitialized) {\n"
+                  "  return NO;\n"
+                  "}\n");
+              } else {
+                printer->Print(vars,
+                  "if (self.has$capitalized_name$) {\n"
+                  "  if (!self.$name$.isInitialized) {\n"
+                  "    return NO;\n"
+                  "  }\n"
+                  "}\n");
+              }
               break;
             case FieldDescriptor::LABEL_REPEATED:
               printer->Print(vars,
@@ -1065,15 +1087,9 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
       "}\n");
   }
 
-  void MessageGenerator::GenerateRequiredFieldCheckSource(
+  void MessageGenerator::GenerateRequiredFieldCheckSourceIfNeeded(
     io::Printer* printer, const FieldDescriptor* field) {
-    SourceLocation source;
-    bool has_source_location = field->GetSourceLocation(&source);
-    if (!has_source_location) { return; }
-
-    std::string comments = source.trailing_comments;
-    bool has_required_tag = comments.find("[required=true]") != std::string::npos;
-    if (!has_required_tag) { return; }
+    if (!HasRequiredTag(field)) { return; }
 
     map<string,string> vars;
     vars["capitalized_name"] = UnderscoresToCapitalizedCamelCase(field);

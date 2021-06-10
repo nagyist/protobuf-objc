@@ -94,7 +94,7 @@ class MessageGenerator {
   void GenerateBuilderParsingMethodsSource(io::Printer* printer);
   void GenerateBuilderPartiallyMergeMethodSource(io::Printer* printer);
   void GenerateIsInitializedSource(io::Printer* printer);
-  void GenerateRequiredFieldCheckSource(
+  void GenerateRequiredFieldCheckSourceIfNeeded(
     io::Printer* printer,const FieldDescriptor* field);
 
   const Descriptor* descriptor_;
