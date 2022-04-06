@@ -20,110 +20,108 @@
 #include <map>
 #include <string>
 
-#include <google/protobuf/io/printer.h>
 #include <google/protobuf/descriptor.pb.h>
+#include <google/protobuf/io/printer.h>
 #include <google/protobuf/stubs/strutil.h>
 
 #include "objc_helpers.h"
 
-namespace google { namespace protobuf { namespace compiler { namespace objectivec {
+namespace google {
+namespace protobuf {
+    namespace compiler {
+        namespace objectivec {
 
-  EnumGenerator::EnumGenerator(const EnumDescriptor* descriptor)
-    : descriptor_(descriptor) {
-      for (int i = 0; i < descriptor_->value_count(); i++) {
-        const EnumValueDescriptor* value = descriptor_->value(i);
-        const EnumValueDescriptor* canonical_value =
-          descriptor_->FindValueByNumber(value->number());
+            EnumGenerator::EnumGenerator(const EnumDescriptor *descriptor)
+                : descriptor_(descriptor) {
+                for(int i = 0; i < descriptor_->value_count(); i++) {
+                    const EnumValueDescriptor *value           = descriptor_->value(i);
+                    const EnumValueDescriptor *canonical_value = descriptor_->FindValueByNumber(value->number());
 
-        if (value == canonical_value) {
-          canonical_values_.push_back(value);
-        } else {
-          Alias alias;
-          alias.value = value;
-          alias.canonical_value = canonical_value;
-          aliases_.push_back(alias);
-        }
-      }
-  }
+                    if(value == canonical_value) {
+                        canonical_values_.push_back(value);
+                    } else {
+                        Alias alias;
+                        alias.value           = value;
+                        alias.canonical_value = canonical_value;
+                        aliases_.push_back(alias);
+                    }
+                }
+            }
 
+            EnumGenerator::~EnumGenerator() {
+            }
 
-  EnumGenerator::~EnumGenerator() {
-  }
+            void EnumGenerator::GenerateHeader(io::Printer *printer) {
+                printer->Print(
+                    "typedef NS_CLOSED_ENUM(int32_t, $classname$) {\n",
+                    "classname", ClassName(descriptor_));
+                printer->Indent();
 
-  void EnumGenerator::GenerateHeader(io::Printer* printer) {
-    printer->Print(
-      "typedef NS_CLOSED_ENUM(int32_t, $classname$) {\n",
-      "classname", ClassName(descriptor_)
-    );
-    printer->Indent();
-    
-    for (int i = 0; i < canonical_values_.size(); i++) {
-      printer->Print(
-        "$name$ = $value$,\n",
-        "name", EnumValueName(canonical_values_[i]),
-        "value", SimpleItoa(canonical_values_[i]->number()));
-    }
+                for(int i = 0; i < canonical_values_.size(); i++) {
+                    printer->Print(
+                        "$name$ = $value$,\n",
+                        "name", EnumValueName(canonical_values_[i]),
+                        "value", SimpleItoa(canonical_values_[i]->number()));
+                }
 
-    printer->Outdent();
-    printer->Print(
-      "};\n"
-      "\n"
-      "BOOL $classname$IsValidValue($classname$ value);\n",
-      "classname", ClassName(descriptor_));
+                printer->Outdent();
+                printer->Print(
+                    "};\n"
+                    "\n"
+                    "BOOL $classname$IsValidValue($classname$ value);\n",
+                    "classname", ClassName(descriptor_));
 
-    if (hasEnumStringRepresentationMethod(ClassName(descriptor_))) {
-      printer->Print(
-        "const char* $classname$StringRepresentation($classname$ value);\n"
-        "\n",
-        "classname", ClassName(descriptor_));
-    } else {
-      printer->Print(
-        "\n",
-        "classname", ClassName(descriptor_));
-    }
-  }
+                if(hasEnumStringRepresentationMethod(ClassName(descriptor_))) {
+                    printer->Print(
+                        "const char* $classname$StringRepresentation($classname$ value);\n"
+                        "\n",
+                        "classname", ClassName(descriptor_));
+                } else {
+                    printer->Print(
+                        "\n",
+                        "classname", ClassName(descriptor_));
+                }
+            }
 
+            void EnumGenerator::GenerateSource(io::Printer *printer) {
+                // IsValidValue generation
+                printer->Print(
+                    "BOOL $classname$IsValidValue($classname$ value) {\n"
+                    "  switch (value) {\n",
+                    "classname", ClassName(descriptor_));
 
-  void EnumGenerator::GenerateSource(io::Printer* printer) {
-    // IsValidValue generation
-    printer->Print(
-      "BOOL $classname$IsValidValue($classname$ value) {\n"
-      "  switch (value) {\n",
-      "classname", ClassName(descriptor_));
+                for(int i = 0; i < canonical_values_.size(); i++) {
+                    printer->Print(
+                        "    case $name$:\n",
+                        "name", EnumValueName(canonical_values_[i]));
+                }
 
-    for (int i = 0; i < canonical_values_.size(); i++) {
-      printer->Print(
-        "    case $name$:\n",
-        "name", EnumValueName(canonical_values_[i]));
-    }
+                printer->Print(
+                    "      return YES;\n"
+                    "    default:\n"
+                    "      return NO;\n"
+                    "  }\n"
+                    "}\n");
 
-    printer->Print(
-      "      return YES;\n"
-      "    default:\n"
-      "      return NO;\n"
-      "  }\n"
-      "}\n");
-    
-    // StringRepresentation generation
-    if (hasEnumStringRepresentationMethod(ClassName(descriptor_))) {
-      printer->Print(
-        "const char* $classname$StringRepresentation($classname$ value) {\n"
-        "  switch (value) {\n",
-        "classname", ClassName(descriptor_));
+                // StringRepresentation generation
+                if(hasEnumStringRepresentationMethod(ClassName(descriptor_))) {
+                    printer->Print(
+                        "const char* $classname$StringRepresentation($classname$ value) {\n"
+                        "  switch (value) {\n",
+                        "classname", ClassName(descriptor_));
 
-      for (int i = 0; i < canonical_values_.size(); i++) {
-        printer->Print(
-          (std::string("    case $name$:\n") +
-          std::string("      return \"") + UnderscoresToCamelCase(SafeName(canonical_values_[i]->name())) + std::string("\";\n")).c_str(),
-          "name", EnumValueName(canonical_values_[i]));
-      }
+                    for(int i = 0; i < canonical_values_.size(); i++) {
+                        printer->Print(
+                            (std::string("    case $name$:\n") + std::string("      return \"") + UnderscoresToCamelCase(SafeName(canonical_values_[i]->name())) + std::string("\";\n")).c_str(),
+                            "name", EnumValueName(canonical_values_[i]));
+                    }
 
-      printer->Print(
-        "  }\n"
-        "}\n");
-    }
-  }
-}  // namespace objectivec
-}  // namespace compiler
-}  // namespace protobuf
-}  // namespace google
+                    printer->Print(
+                        "  }\n"
+                        "}\n");
+                }
+            }
+        } // namespace objectivec
+    }     // namespace compiler
+} // namespace protobuf
+} // namespace google

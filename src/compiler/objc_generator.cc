@@ -17,100 +17,101 @@
 
 #include "objc_generator.h"
 
+#include <google/protobuf/descriptor.pb.h>
 #include <google/protobuf/io/printer.h>
 #include <google/protobuf/io/zero_copy_stream.h>
-#include <google/protobuf/descriptor.pb.h>
 #include <google/protobuf/stubs/strutil.h>
 
 #include "objc_file.h"
 #include "objc_helpers.h"
 
-namespace google { namespace protobuf { namespace compiler { namespace objectivec {
-  ObjectiveCGenerator::ObjectiveCGenerator() {
-  }
+namespace google {
+namespace protobuf {
+    namespace compiler {
+        namespace objectivec {
+            ObjectiveCGenerator::ObjectiveCGenerator() {
+            }
 
+            ObjectiveCGenerator::~ObjectiveCGenerator() {
+            }
 
-  ObjectiveCGenerator::~ObjectiveCGenerator() {
-  }
+            bool ObjectiveCGenerator::Generate(const FileDescriptor *file,
+                const string &parameter,
+                OutputDirectory *output_directory,
+                string *error) const {
+                vector<pair<string, string>> options;
+                ParseGeneratorParameter(parameter, &options);
 
+                string output_list_file;
 
-  bool ObjectiveCGenerator::Generate(const FileDescriptor* file,
-    const string& parameter,
-    OutputDirectory* output_directory,
-    string* error) const {
-      vector<pair<string, string> > options;
-      ParseGeneratorParameter(parameter, &options);
+                for(int i = 0; i < options.size(); i++) {
+                    if(options[i].first == "output_list_file") {
+                        output_list_file = options[i].second;
+                    } else {
+                        *error = "Unknown generator option: " + options[i].first;
+                        return false;
+                    }
+                }
 
-      string output_list_file;
+                FileGenerator file_generator(file);
 
-      for (int i = 0; i < options.size(); i++) {
-        if (options[i].first == "output_list_file") {
-          output_list_file = options[i].second;
-        } else {
-          *error = "Unknown generator option: " + options[i].first;
-          return false;
-        }
-      }
+                string filepath = FilePath(file);
 
-      FileGenerator file_generator(file);
+                // default: old way. Do not divide headers. User can set PROTOC_GEN_OBJC_DIVIDE_HEADERS in order to split headers
+                bool shouldDivideHeaders = ::getenv("PROTOC_GEN_OBJC_DIVIDE_HEADERS") != 0;
+                if(shouldDivideHeaders) {
+                    string enumsHeaderName     = filepath + ".enums.pb.h";
+                    string aggregateHeaderName = filepath + ".pb.h";
 
-      string filepath = FilePath(file);
+                    // Generate aggregate header which consists of:
+                    // Enums header import
+                    // Forward declarations
+                    // Dependencies imports
+                    // Root class
+                    {
+                        scoped_ptr<io::ZeroCopyOutputStream> output(output_directory->Open(aggregateHeaderName));
+                        io::Printer printer(output.get(), '$');
+                        file_generator.GenerateAggregateHeader(&printer, enumsHeaderName);
+                    }
 
-      // default: old way. Do not divide headers. User can set PROTOC_GEN_OBJC_DIVIDE_HEADERS in order to split headers
-      bool shouldDivideHeaders = ::getenv("PROTOC_GEN_OBJC_DIVIDE_HEADERS") != 0;
-      if (shouldDivideHeaders) {
-          string enumsHeaderName = filepath + ".enums.pb.h";
-          string aggregateHeaderName = filepath + ".pb.h";
-          
-          // Generate aggregate header which consists of:
-          // Enums header import
-          // Forward declarations
-          // Dependencies imports
-          // Root class
-          {
-              scoped_ptr<io::ZeroCopyOutputStream> output(output_directory->Open(aggregateHeaderName));
-              io::Printer printer(output.get(), '$');
-              file_generator.GenerateAggregateHeader(&printer, enumsHeaderName);
-          }
-          
-          // Generate enums header. Just enums.
-          {
-              scoped_ptr<io::ZeroCopyOutputStream> output(output_directory->Open(enumsHeaderName));
-              io::Printer printer(output.get(), '$');
-              file_generator.GenerateEnumsHeader(&printer);
-          }
-          
-          // Generate headers for each class. Each header consists of:
-          // Aggregate header import
-          // _Builder class forward declaration
-          // Class interface
-          // _Builder class interface
-          {
-              file_generator.GenerateHeaders(output_directory, ".pb.h", aggregateHeaderName);
-          }
-      } else {
-          
-          // Generate header.
-          {
-              scoped_ptr<io::ZeroCopyOutputStream> output(
-                                                          output_directory->Open(filepath + ".pb.h"));
-              io::Printer printer(output.get(), '$');
-              file_generator.GenerateHeader(&printer);
-          }
-      }
-      
-      // Generate m file.
-      {
-          scoped_ptr<io::ZeroCopyOutputStream> output(
-                                                      output_directory->Open(filepath + ".pb.m"));
-          io::Printer printer(output.get(), '$');
-          file_generator.GenerateSource(&printer);
-      }
+                    // Generate enums header. Just enums.
+                    {
+                        scoped_ptr<io::ZeroCopyOutputStream> output(output_directory->Open(enumsHeaderName));
+                        io::Printer printer(output.get(), '$');
+                        file_generator.GenerateEnumsHeader(&printer);
+                    }
 
-      return true;
-  }
+                    // Generate headers for each class. Each header consists of:
+                    // Aggregate header import
+                    // _Builder class forward declaration
+                    // Class interface
+                    // _Builder class interface
+                    {
+                        file_generator.GenerateHeaders(output_directory, ".pb.h", aggregateHeaderName);
+                    }
+                } else {
 
-}  // namespace objectivec
-}  // namespace compiler
-}  // namespace protobuf
-}  // namespace google
+                    // Generate header.
+                    {
+                        scoped_ptr<io::ZeroCopyOutputStream> output(
+                            output_directory->Open(filepath + ".pb.h"));
+                        io::Printer printer(output.get(), '$');
+                        file_generator.GenerateHeader(&printer);
+                    }
+                }
+
+                // Generate m file.
+                {
+                    scoped_ptr<io::ZeroCopyOutputStream> output(
+                        output_directory->Open(filepath + ".pb.m"));
+                    io::Printer printer(output.get(), '$');
+                    file_generator.GenerateSource(&printer);
+                }
+
+                return true;
+            }
+
+        } // namespace objectivec
+    }     // namespace compiler
+} // namespace protobuf
+} // namespace google

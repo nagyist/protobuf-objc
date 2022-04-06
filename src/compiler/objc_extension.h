@@ -22,35 +22,35 @@
 
 namespace google {
 namespace protobuf {
-  class FieldDescriptor;       // descriptor.h
-  namespace io {
-    class Printer;             // printer.h
-  }
+    class FieldDescriptor; // descriptor.h
+    namespace io {
+        class Printer; // printer.h
+    }
 }
 
 namespace protobuf {
-namespace compiler {
-namespace objectivec {
+    namespace compiler {
+        namespace objectivec {
 
-class ExtensionGenerator {
- public:
-  explicit ExtensionGenerator(string classname, const FieldDescriptor* descriptor);
-  ~ExtensionGenerator();
+            class ExtensionGenerator {
+            public:
+                explicit ExtensionGenerator(string classname, const FieldDescriptor *descriptor);
+                ~ExtensionGenerator();
 
-  void GenerateMembersHeader(io::Printer* printer);
-  void GenerateMembersSource(io::Printer* printer);
-  void GenerateFieldsSource(io::Printer* printer);
-  void GenerateInitializationSource(io::Printer* printer);
-  void GenerateRegistrationSource(io::Printer* printer);
+                void GenerateMembersHeader(io::Printer *printer);
+                void GenerateMembersSource(io::Printer *printer);
+                void GenerateFieldsSource(io::Printer *printer);
+                void GenerateInitializationSource(io::Printer *printer);
+                void GenerateRegistrationSource(io::Printer *printer);
 
- private:
-  string classname_;
-  const FieldDescriptor* descriptor_;
-  GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(ExtensionGenerator);
-};
-}  // namespace objectivec
-}  // namespace compiler
-}  // namespace protobuf
-}  // namespace google
+            private:
+                string classname_;
+                const FieldDescriptor *descriptor_;
+                GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(ExtensionGenerator);
+            };
+        } // namespace objectivec
+    }     // namespace compiler
+} // namespace protobuf
+} // namespace google
 
 #endif // OBJC_MESSAGE_H
