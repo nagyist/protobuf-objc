@@ -1,4 +1,4 @@
-AC_PREREQ(2.61)
+AC_PREREQ([2.71])
 
 AC_INIT([protobuf-plugin-objc],[0.1],[jon@booyah.com],[protobuf-plugin-objc])
 
@@ -13,6 +13,7 @@ AM_INIT_AUTOMAKE
 AC_PROG_CC
 AC_PROG_CXX
 AC_LANG([C++])
+AX_CXX_COMPILE_STDCXX_17()
 
 AC_MSG_CHECKING([C++ compiler flags...])
 AS_IF([test "x${ac_cv_env_CXXFLAGS_set}" = "x"],[
@@ -26,7 +27,15 @@ AS_IF([test "x${ac_cv_env_CXXFLAGS_set}" = "x"],[
 LT_INIT
 
 # Check for header files
-AC_HEADER_STDC
+m4_warn([obsolete],
+[The preprocessor macro `STDC_HEADERS' is obsolete.
+  Except in unusual embedded environments, you can safely include all
+  ISO C90 headers unconditionally.])dnl
+# Autoupdate added the next two lines to ensure that your configure
+# script's behavior did not change.  They are probably safe to remove.
+AC_CHECK_INCLUDES_DEFAULT
+AC_PROG_EGREP
+
 AC_CHECK_HEADERS([fcntl.h inttypes.h limits.h stdlib.h unistd.h])
 
 # Check for libaries

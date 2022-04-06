@@ -18,48 +18,51 @@
 #ifndef OBJC_FILE_H__
 #define OBJC_FILE_H__
 
-#include <string>
-#include <set>
-#include <vector>
 #include <google/protobuf/stubs/common.h>
+#include <set>
+#include <string>
+#include <vector>
 
 namespace google {
 namespace protobuf {
-  class FileDescriptor;        // descriptor.h
-  namespace io {
-    class Printer;             // printer.h
-  }
+    class FileDescriptor; // descriptor.h
+    namespace io {
+        class Printer; // printer.h
+    }
 }
 
 namespace protobuf {
-namespace compiler {
-      class GeneratorContext;
-namespace objectivec {
+    namespace compiler {
+        class GeneratorContext;
+        namespace objectivec {
 
-class FileGenerator {
- public:
-  explicit FileGenerator(const FileDescriptor* file);
-  ~FileGenerator();
+            class FileGenerator {
+            public:
+                explicit FileGenerator(const FileDescriptor *file);
+                ~FileGenerator();
 
-  void GenerateSource(io::Printer* printer);
-  void GenerateHeader(io::Printer* printer);
-  void DetermineDependencies(set<string>* dependencies);
+                void GenerateSource(io::Printer *printer);
+                void GenerateHeader(io::Printer *printer);
+                void DetermineDependencies(set<string> *dependencies);
 
-  void GenerateEnumsHeader(io::Printer* printer);
-  void GenerateAggregateHeader(io::Printer* printer, string enumsHeaderName);
-  void GenerateHeaders(GeneratorContext* outputDirectory, string extension, string aggregateHeaderName);    
+                void GenerateEnumsHeader(io::Printer *printer);
+                void GenerateAggregateHeader(io::Printer *printer, string enumsHeaderName);
+                void GenerateHeaders(GeneratorContext *outputDirectory, string extension, string aggregateHeaderName);
 
-  const string& classname()    { return classname_;    }
+                const string &classname() { return classname_; }
 
- private:
-  const FileDescriptor* file_;
-  string classname_;
+            private:
+                static std::string GetImportPrefix();
 
-  GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(FileGenerator);
-};
-}  // namespace objectivec
-}  // namespace compiler
-}  // namespace protobuf
-}  // namespace google
+            private:
+                const FileDescriptor *file_;
+                string classname_;
+
+                GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(FileGenerator);
+            };
+        } // namespace objectivec
+    }     // namespace compiler
+} // namespace protobuf
+} // namespace google
 
 #endif // OBJC_FILE_H__

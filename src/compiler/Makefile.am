@@ -1,5 +1,6 @@
 MAINTAINERCLEANFILES = \
 	Makefile.in
+AM_CXXFLAGS = -g -std=c++17 -Wall
 
 bin_PROGRAMS = protoc-gen-objc
 protoc_gen_objc_LDFLAGS = -lprotobuf -lprotoc
