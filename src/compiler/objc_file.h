@@ -52,6 +52,9 @@ namespace protobuf {
                 const string &classname() { return classname_; }
 
             private:
+                static std::string GetImportPrefix();
+
+            private:
                 const FileDescriptor *file_;
                 string classname_;
 
